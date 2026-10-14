@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           python -m venv "$RUNNER_TEMP/venv"
           "$RUNNER_TEMP/venv/bin/python" -m pip install --quiet dist/*.whl
-          "$RUNNER_TEMP/venv/bin/python" -m pip show numguard-ci | head -2
+          "$RUNNER_TEMP/venv/bin/python" -m pip show numguard-ci
           # Write the help to a file first: `pytest --help | grep -q` fails under pipefail (SIGPIPE).
           "$RUNNER_TEMP/venv/bin/python" -m pytest --help > "$RUNNER_TEMP/pytest-help.txt"
           grep -q -- "--numguard-backend" "$RUNNER_TEMP/pytest-help.txt" || { echo "::error::numguard plugin not registered"; exit 1; }
