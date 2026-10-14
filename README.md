@@ -105,7 +105,7 @@ An LLM never decides a result. The [agent](#agent-experimental) can draft a spec
 
 ```bash
 pip install numguard-ci                                                              # the command and the import are `numguard`
-pip install "numguard-ci @ git+https://github.com/bhaskargurram-ai/numguard@v1.0.0"   # or straight from GitHub
+pip install "numguard-ci @ git+https://github.com/bhaskargurram-ai/numguard@v1.0.1"   # or straight from GitHub
 ```
 
 The only runtime dependencies are NumPy and click. Extras: `numguard-ci[pytest]`, `numguard-ci[scipy]`, `numguard-ci[mpmath]` (arbitrary-precision references), `numguard-ci[hypothesis]` ([strategies](#hypothesis-strategies)), `numguard-ci[bfloat16]` (`ml_dtypes`), `numguard-ci[dev]` (everything for working on numguard). Python 3.10 or newer.
@@ -178,7 +178,7 @@ numguard init --target mypkg.ops:logsumexp     # also add a [[target]] stub (rep
 
 `init` writes the caller workflows below and a commented [`numguard.toml`](#config-file), refuses to overwrite existing files without `--force`, and prints the next steps. `--install-command CMD` changes how the workflow installs your project and `--ref` pins another numguard tag or commit. List your functions as `[[target]]` tables in `numguard.toml`, merge the files to your default branch (`workflow_run` workflows only run from there), and open a pull request. The files in [`examples/workflows/`](https://github.com/bhaskargurram-ai/numguard/tree/main/examples/workflows) and [`examples/numguard.toml`](https://github.com/bhaskargurram-ai/numguard/blob/main/examples/numguard.toml) are exactly what `numguard init --agent` writes; the snippets below are copied from them without their comment headers.
 
-numguard runs as separate workflows so that the pull request's code and privileged tokens never share a job ([why](#security-model)). Each caller is a few lines that point at a reusable workflow in this repository. Pin `@v1.0.0`, or a full commit SHA if you want to be strict, and keep `numguard-ref` the same.
+numguard runs as separate workflows so that the pull request's code and privileged tokens never share a job ([why](#security-model)). Each caller is a few lines that point at a reusable workflow in this repository. Pin `@v1.0.1`, or a full commit SHA if you want to be strict, and keep `numguard-ref` the same.
 
 **`.github/workflows/numguard.yml`** runs the checks. It is unprivileged and is where PR code runs.
 
@@ -197,9 +197,9 @@ concurrency:
 
 jobs:
   check:
-    uses: bhaskargurram-ai/numguard/.github/workflows/check.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/check.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       python-version: "3.12"
       # Installs the project under test; this runs PR code (unprivileged job).
       install-command: 'pip install -e ".[dev]" || pip install -e .'
@@ -226,9 +226,9 @@ jobs:
       contents: read
       actions: read          # download the artifact of the triggering run
       pull-requests: write   # upsert the comment and the status label
-    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       labels: true
 ```
 
@@ -251,9 +251,9 @@ jobs:
       contents: read
       actions: read
       pull-requests: read
-    uses: bhaskargurram-ai/numguard/.github/workflows/agent.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/agent.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       llm-provider: ${{ vars.NUMGUARD_LLM_PROVIDER }}
       llm-model: ${{ vars.NUMGUARD_LLM_MODEL }}
       llm-base-url: ${{ vars.NUMGUARD_LLM_BASE_URL }}
@@ -271,9 +271,9 @@ jobs:
       contents: read
       actions: read
       pull-requests: write
-    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       # Trusted values: the PR number comes from the gate job (API data, no PR
       # code ran there) and the artifact from this run's verify job.
       pr-number: ${{ needs.agent.outputs.pr-number }}
@@ -290,7 +290,7 @@ On fork PRs the check workflow has no write token, so the card also appears in t
 <details>
 <summary><b>Use the composite action directly</b></summary>
 
-The `bhaskargurram-ai/numguard@v1.0.0` composite action ([`action.yml`](https://github.com/bhaskargurram-ai/numguard/blob/main/action.yml)) takes a `command`: `check` (default), `summary`, `comment`, `agent-propose` or `agent-verify`. The reusable workflows above combine them so that the trust zones stay apart; see [docs/GITHUB.md](https://github.com/bhaskargurram-ai/numguard/blob/main/docs/GITHUB.md#the-composite-action) before wiring them up yourself.
+The `bhaskargurram-ai/numguard@v1.0.1` composite action ([`action.yml`](https://github.com/bhaskargurram-ai/numguard/blob/main/action.yml)) takes a `command`: `check` (default), `summary`, `comment`, `agent-propose` or `agent-verify`. The reusable workflows above combine them so that the trust zones stay apart; see [docs/GITHUB.md](https://github.com/bhaskargurram-ai/numguard/blob/main/docs/GITHUB.md#the-composite-action) before wiring them up yourself.
 
 </details>
 
