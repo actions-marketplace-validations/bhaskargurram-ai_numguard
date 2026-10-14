@@ -1,0 +1,65 @@
+# Publish the pytest-numguard metapackage (packages/pytest-numguard) to PyPI.
+#
+# pytest's plugin list only includes PyPI projects named pytest-*; this package
+# depends on numguard-ci, which provides the plugin. Run it from the Actions tab
+# after a numguard-ci release. Uses the PYPI_API_TOKEN secret when set (an
+# account-wide token for the first upload of this new project), trusted
+# publishing otherwise.
+name: publish pytest-numguard
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build and check
+        working-directory: packages/pytest-numguard
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build twine
+          python -m build --outdir "$GITHUB_WORKSPACE/dist"
+          python -m twine check --strict "$GITHUB_WORKSPACE"/dist/*
+      - name: Smoke-test the wheel (pulls numguard-ci from PyPI)
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --quiet dist/*.whl
+          "$RUNNER_TEMP/venv/bin/python" -m pytest --help | grep -q -- "--numguard-backend"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pytest-numguard/
+    permissions:
+      id-token: write   # trusted publishing (OIDC), used when PYPI_API_TOKEN is not set
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true

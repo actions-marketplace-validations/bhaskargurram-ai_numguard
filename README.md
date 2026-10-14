@@ -106,6 +106,7 @@ An LLM never decides a result. The [agent](#agent-experimental) can draft a spec
 
 ```bash
 pip install numguard-ci                                                              # the command and the import are `numguard`
+pip install pytest-numguard                                                          # the same, under the name pytest's plugin list indexes
 pip install "numguard-ci @ git+https://github.com/bhaskargurram-ai/numguard@v1.0.1"   # or straight from GitHub
 ```
 
