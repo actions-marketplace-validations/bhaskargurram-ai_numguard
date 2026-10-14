@@ -13,6 +13,7 @@
   <a href="https://github.com/bhaskargurram-ai/numguard/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT"></a>
   <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue" alt="Python 3.10 to 3.13">
   <a href="https://pypi.org/project/numguard-ci/"><img src="https://img.shields.io/pypi/v/numguard-ci" alt="PyPI: numguard-ci"></a>
+  <a href="https://github.com/marketplace/actions/numguard-numerical-edge-cases"><img src="https://img.shields.io/badge/GitHub%20Marketplace-action-2ea44f?logo=github" alt="GitHub Marketplace"></a>
   <img src="https://img.shields.io/badge/agent-experimental-orange" alt="Agent: experimental">
 </p>
 
@@ -42,7 +43,7 @@ print(report.summary())
 </p>
 
 > [!NOTE]
-> **Status: 1.0.0.** The edge-case catalogue, checks, pytest plugin, config file, bug corpus and GitHub workflows are deterministic and need no LLM. The agent commands (`suggest`, `fix`, `bench`) are **experimental, opt-in and bring-your-own-key**: whatever a model writes counts only after numguard has executed it and re-run the checks. NumPy is the tested backend; PyTorch, JAX and CuPy are supported when installed.
+> **Status: stable (1.x).** The edge-case catalogue, checks, pytest plugin, config file, bug corpus and GitHub workflows are deterministic and need no LLM. The agent commands (`suggest`, `fix`, `bench`) are **experimental, opt-in and bring-your-own-key**: whatever a model writes counts only after numguard has executed it and re-run the checks. NumPy is the tested backend; PyTorch, JAX and CuPy are supported when installed.
 
 ## Contents
 
