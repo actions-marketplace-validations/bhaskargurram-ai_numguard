@@ -115,3 +115,21 @@ jobs:
           assert result["status"] == "fail" and data["status"] == "fail"
           assert "finite" in result["targets"][0]["failed_checks"]
           PY
+
+  pytest-numguard-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build and check the pytest-numguard metapackage
+        working-directory: packages/pytest-numguard
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade build twine
+          python -m build --outdir "$RUNNER_TEMP/pn-dist"
+          python -m twine check --strict "$RUNNER_TEMP"/pn-dist/*

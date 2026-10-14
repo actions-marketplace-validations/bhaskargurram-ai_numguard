@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- `pytest-numguard` on PyPI: a metapackage that installs numguard-ci, so the
+  pytest plugin appears in pytest's plugin list (which indexes `pytest-*`
+  projects only). Published with the `publish pytest-numguard` workflow.
+
 ## [1.0.1] - 2026-10-14
 
 ### Changed
