@@ -443,7 +443,7 @@
         <li>
           <h3>Install</h3>
           <pre><code>pip install numguard-ci   <span class="c"># the command is numguard</span>
-pip install "numguard-ci @ git+https://github.com/bhaskargurram-ai/numguard@v1.0.0"</code></pre>
+pip install "numguard-ci @ git+https://github.com/bhaskargurram-ai/numguard@v1.0.1"</code></pre>
         </li>
         <li>
           <h3>Check a function</h3>
@@ -471,9 +471,9 @@ concurrency:
 
 jobs:
   check:
-    uses: bhaskargurram-ai/numguard/.github/workflows/check.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/check.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       python-version: "3.12"
       <span class="c"># Installs the project under test; this runs PR code (unprivileged job).</span>
       install-command: 'pip install -e ".[dev]" || pip install -e .'
@@ -498,9 +498,9 @@ jobs:
       contents: read
       actions: read          <span class="c"># download the artifact of the triggering run</span>
       pull-requests: write   <span class="c"># upsert the comment and the status label</span>
-    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       labels: true</code></pre>
           </details>
           <details>
@@ -521,9 +521,9 @@ jobs:
       contents: read
       actions: read
       pull-requests: read
-    uses: bhaskargurram-ai/numguard/.github/workflows/agent.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/agent.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       llm-provider: ${{ vars.NUMGUARD_LLM_PROVIDER }}
       llm-model: ${{ vars.NUMGUARD_LLM_MODEL }}
       llm-base-url: ${{ vars.NUMGUARD_LLM_BASE_URL }}
@@ -541,9 +541,9 @@ jobs:
       contents: read
       actions: read
       pull-requests: write
-    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.0
+    uses: bhaskargurram-ai/numguard/.github/workflows/comment.yml@v1.0.1
     with:
-      numguard-ref: v1.0.0
+      numguard-ref: v1.0.1
       <span class="c"># Trusted values: the PR number comes from the gate job (API data, no PR</span>
       <span class="c"># code ran there) and the artifact from this run's verify job.</span>
       pr-number: ${{ needs.agent.outputs.pr-number }}

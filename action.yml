@@ -1,4 +1,4 @@
-name: numguard
+name: numguard numerical edge cases
 description: "Numerical edge-case checks for array code: NaN, overflow, precision and dtype bugs, with evidence."
 author: Bhaskar Gurram
 branding:
