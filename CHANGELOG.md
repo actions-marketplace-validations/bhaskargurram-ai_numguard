@@ -8,16 +8,28 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- `numguard scan --timeout SECONDS` (default 300): a hard per-function limit, so one slow function (JAX recompiles for every new input shape) cannot stall a scan. A function over the limit is recorded as an error and the scan moves on.
+
+## [1.1.0] - 2026-10-18
+
+### Added
+
 - **Gradient checks.** `grad=True` checks automatic differentiation in JAX and PyTorch; `grad=fn` checks a gradient function you wrote. The gradient of `sum(f)` is compared, at every finite edge case, with float64 central differences (Richardson-extrapolated, with an error bound per point) of `reference` or of the function in float64, or with `grad_reference`. Two more checks run with `grad=True`: `grad:primal` (the primal value of a forward-mode `jvp` must equal `f(x)`, the bug fixed in jax-ml/jax#41017) and, for elementwise functions, `grad:forward` (forward and reverse mode must agree). Points where finite differences can't be trusted are skipped, not reported.
 - **`isolation` check** (`elementwise=True`): each element's result must be the same when computed alone, in the full array, and next to every other case's inputs, NaN and infinities included. It catches work shared across a batch, such as a single convergence loop for every element (the bug fixed in jax-ml/jax#41440).
 - `--elementwise` and `--grad` CLI flags and `elementwise`, `grad`, `grad_rtol` keys in `numguard.toml`.
 - CI runs the backend and gradient tests against real CPU builds of JAX and PyTorch.
+- **`numguard scan MODULE`**: checks every public numerical function of a module. It probes each function for its arity, a domain with finite output and whether it is elementwise, and compares with same-named functions of `--ref MODULE` (for example `jax.scipy.special` against `scipy.special`). Results are candidates to triage, with JSON output for CI.
 - `pytest-numguard` on PyPI: a metapackage that installs numguard-ci, so the
   pytest plugin appears in pytest's plugin list (which indexes `pytest-*`
   projects only). Published with the `publish pytest-numguard` workflow.
 
+### Fixed
+
+- Windows: target functions given as a path with a drive letter (`C:\work\ops.py:f`) are accepted, and output of child processes (agent sandbox, `bench`, the `[pytest]` run) is decoded as UTF-8 instead of the system code page.
+
 ### Changed
 
+- CI also runs the unit tests on macOS and Windows.
 - Status is now labelled beta in the README and in the PyPI classifiers (`Development Status :: 4 - Beta`), until there are confirmed outside users. Version numbering stays 1.x.
 - Added `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), `SECURITY.md`, `CITATION.cff`, issue and pull request templates, and README sections linking the other two tools of the verification toolkit and explaining how to cite.
 
