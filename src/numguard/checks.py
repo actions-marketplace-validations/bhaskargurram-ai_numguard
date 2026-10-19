@@ -431,9 +431,19 @@ def _check_case(ctx: _Ctx, fn: Callable[..., Any], case: Case) -> Run:
             val = outs[k][idx] if m.ndim else outs[k][()]
             label = f"output {k} " if len(outs) > 1 else ""
             problems.append(f"{label}{int(m.sum())}/{m.size} non-finite (e.g. {_fmt_val(val)})")
-        if problems:
+        flushed = _flushed_reference(spec, case, len(outs)) if problems else None
+        if flushed is not None:
+            with np.errstate(all="ignore"):
+                fmasks = _nonfinite_mask([_round_like(r, o, case) for r, o in zip(flushed, outs)])
+            if all(not m.any() or (f.shape == m.shape and not np.any(m & ~f)) for m, f in zip(masks, fmasks)):
+                ctx.add("finite", case, SKIP, "non-finite only where subnormal inputs are flushed to zero "
+                        "(a floating-point mode of the backend): " + "; ".join(problems), run=run)
+                flushed = True
+            else:
+                flushed = None
+        if problems and flushed is None:
             ctx.add("finite", case, FAIL, "finite input gave " + "; ".join(problems), run=run)
-        else:
+        elif not problems:
             ctx.add("finite", case, PASS, run=run)
 
     # ---- NaN policy --------------------------------------------------------
@@ -559,6 +569,18 @@ def _has_subnormal(arrays: Sequence[np.ndarray]) -> bool:
     return False
 
 
+def _flushed_reference(spec: "Spec", case: Case, n_out: int) -> list[np.ndarray] | None:
+    """Reference outputs for the case's inputs with subnormals flushed to zero (None if unavailable)."""
+    if spec.reference is None or not _has_subnormal(case.args):
+        return None
+    flushed_case = dataclasses.replace(case, args=tuple(_flush(np.asarray(a)) for a in case.args))
+    ref2 = call(spec.reference, _ref_args(spec.reference, flushed_case, spec.ref_upcast), spec.ref_kwargs,
+                check_mutation=False)
+    if ref2.error is not None or len(ref2.outputs or []) != n_out:
+        return None
+    return list(ref2.outputs)
+
+
 def _ftz_explains(spec: "Spec", case: Case, outs: list[np.ndarray], ref_outs: list[np.ndarray],
                   ref_fn: Callable[..., Any] | None) -> bool:
     """Does the mismatch disappear when subnormal inputs and results are flushed to zero?
@@ -576,7 +598,12 @@ def _ftz_explains(spec: "Spec", case: Case, outs: list[np.ndarray], ref_outs: li
         return False
     for o, r, weak in zip(outs, ref2.outputs, [False] * len(outs)):
         r = _round_like(r, o, case)
-        if not compare(_flush(o), _flush(np.asarray(r)), rtol=spec.rtol, atol=spec.atol,
+        # a flushed subnormal intermediate (a partial sum, a product) shifts a
+        # normal result by less than the smallest normal number
+        atol = float(np.finfo(o.dtype).tiny) if o.dtype.kind == "f" else 0.0
+        if spec.atol is not None and not isinstance(spec.atol, Mapping):
+            atol = max(atol, float(spec.atol))
+        if not compare(_flush(o), _flush(np.asarray(r)), rtol=spec.rtol, atol=atol,
                        tol_dtype=_tol_dtype(o, weak, case), label="reference").ok:
             return False
     return True
